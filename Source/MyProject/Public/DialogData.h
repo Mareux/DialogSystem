@@ -10,24 +10,10 @@
  * 
  */
 
-USTRUCT(BlueprintType)
-struct FAnswerData 
-{
-	GENERATED_BODY()
-
-	FText Text;
-
-	int IdQuestionNext;
-};
 
 UCLASS()
 class MYPROJECT_API UDialogData : public UDataAsset
 {
 	GENERATED_BODY()
 
-	UPROPERTY()
-		TMap<int, FText> Questions;
-
-	UPROPERTY()
-		TMap<int, FAnswerData> Answers;
 };
