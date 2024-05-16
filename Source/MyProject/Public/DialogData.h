@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Engine/DataAsset.h"
+#include "DialogCreatorSubsystem.h"
 #include "DialogData.generated.h"
 
 /**
@@ -16,4 +17,10 @@ class MYPROJECT_API UDialogData : public UDataAsset
 {
 	GENERATED_BODY()
 
+public:
+	UPROPERTY(EditDefaultsOnly)
+	TMap<int, FText> Questions;
+
+	UPROPERTY(EditDefaultsOnly)
+	TArray<FAnswerData> Answers;
 };
