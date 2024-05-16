@@ -4,13 +4,11 @@
 #include "DialogEditorStyle.h"
 #include "DialogEditorCommands.h"
 #include "DialogEditorSubsystem.h"
-#include "EngineUtils.h"
-#include "PropertyCustomizationHelpers.h"
 #include "SDialogEditWindow.h"
 #include "Misc/MessageDialog.h"
 #include "ToolMenus.h"
-#include "Editor/Blutility/Classes/EditorUtilityWidget.h"
-#include "Editor/Blutility/Public/EditorUtilitySubsystem.h"
+#include "UDialogEditorCustomSettings.h"
+
 
 static const FName DialogEditorTabName("DialogEditor");
 
@@ -59,11 +57,44 @@ void FDialogEditorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FDialogEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) {
 
+	const FText SaveButtonText = LOCTEXT("FSaveButtonText", "Save");
+	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
+
+	//FDetailsViewArgs is a struct of settings to customize our Details View Widget
+	FDetailsViewArgs Args;
+	Args.bHideSelectionTip = true;
+
+	//Create the widget and store it in the PropertyWidget pointer
+	PropertyWidget = PropertyModule.CreateDetailView(Args);
+
+	UUDialogEditorCustomSettings* CustomSettings;
+	PropertyWidget->SetObject(CustomSettings = GetMutableDefault<UUDialogEditorCustomSettings>());
+
+	UDialogEditorSubsystem::GeInstance()->CustomSettings = MakeShareable(CustomSettings);
+
+
 
 	return SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
-			SNew(SDialogEditWindow)
+			SNew(SGridPanel)
+			+ SGridPanel::Slot(1, 1)[
+				SNew(SDialogEditWindow)
+			]
+			+ SGridPanel::Slot(2, 1)[
+				SNew(SGridPanel)
+				+ SGridPanel::Slot(1, 1)[
+					PropertyWidget.ToSharedRef()
+				]
+				+ SGridPanel::Slot(1, 2)[
+					SNew(SButton)
+					[
+						SNew(STextBlock)
+						.Text(SaveButtonText)
+					]
+				]
+
+			]
 		];
 }
 
@@ -72,6 +103,10 @@ void FDialogEditorModule::PluginButtonClicked()
 	FGlobalTabmanager::Get()->TryInvokeTab(TestWindowTabName);
 }
 
+FReply FDialogEditorModule::OnSaveButtonClicked() const
+{
+	return FReply::Handled();
+}
 
 
 void FDialogEditorModule::RegisterMenus()

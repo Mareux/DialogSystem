@@ -4,6 +4,7 @@
 #include "SDialogEditWindow.h"
 
 #include "DialogEditorSubsystem.h"
+#include "UObject/FastReferenceCollector.h"
 
 #define LOCTEXT_NAMESPACE "FDialogEditorModule"
 
@@ -18,38 +19,52 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 	const FText SelectNewQuestionHelperText = LOCTEXT("FSelectNewQuestionHelperText", "Select question to add answer for");
 	const FText InputHint = LOCTEXT("InputHint", "Input question here:");
 
+
+	auto Questions = *UDialogEditorSubsystem::GeInstance()->GetQuestions().Get();
+	for (auto Question : Questions)
+	{
+		Options.Add(MakeShareable(new FString(Question.Value.ToString())));
+	}
+
+	if (Options.Num())
+	{
+		CurrentItem = Options[0];
+	}
+
+
+
 	// first panel
 	ChildSlot[
 
 		SNew(SGridPanel)
-			+ SGridPanel::Slot(1, 1)
+			+ SGridPanel::Slot(2, 1)
 			[
 				SNew(SGridPanel)
 				+ SGridPanel::Slot(2, 1)
-			[
-				SNew(SScrollBox)
-			]
-		+ SGridPanel::Slot(1, 1)
-			[
-				SNew(SGridPanel)
-				+ SGridPanel::Slot(1, 1)
-			[
-				SNew(STextBlock)
-				.Text(AnswerHelperTest)
-			]
-		+ SGridPanel::Slot(1, 2)
-			[
-				SNew(SButton)
 				[
-					SNew(STextBlock).
-					Text(AddAnswerButtonText)
+					SNew(SScrollBox)
 				]
-			]
-			]
+				+ SGridPanel::Slot(1, 1)
+				[
+					SNew(SGridPanel)
+					+ SGridPanel::Slot(1, 1)
+					[
+					SNew(STextBlock)
+					.Text(AnswerHelperTest)
+					]
+					+ SGridPanel::Slot(2, 1)
+					[
+						SNew(SButton)
+						[
+							SNew(STextBlock).
+							Text(AddAnswerButtonText)
+						]
+					]
+				]
 			]
 
 		//second panel
-		+ SGridPanel::Slot(1, 2)
+		+ SGridPanel::Slot(1, 1)
 			[
 				SNew(SGridPanel)
 				+ SGridPanel::Slot(1, 1)
@@ -81,6 +96,17 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 			]
 		+ SGridPanel::Slot(1, 4)
 			//combo box
+			[
+				SAssignNew(QuestionsComboBox, SComboBox<TSharedPtr<FString>>)
+				.OptionsSource(&Options)
+				.OnSelectionChanged(this, &SDialogEditWindow::OnAnswerSelectionChanged)
+				.OnGenerateWidget(this, &SDialogEditWindow::MakeWidgetForOption)
+				.InitiallySelectedItem(CurrentItem)
+				[
+					SNew(STextBlock)
+					.Text(this, &SDialogEditWindow::GetCurrentItemLabel)
+				]
+			]
 			+ SGridPanel::Slot(1, 5)
 			[
 				SAssignNew(QuestionEdit, SEditableTextBox)
@@ -109,6 +135,7 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 				//TODO:LATER
 				//+ SGridPanel::Slot(1, 1)
 				//[
+				//	SNew(SDetailsView)
 				//	//SDetailsView
 				//]
 				// save & load button
@@ -125,11 +152,42 @@ FReply SDialogEditWindow::OnAddQuestionButtonClicked() const {
 	} else {
 		QuestionInput.Get()->SetColorAndOpacity(FColor::White);
 		QuestionEdit.Get()->SetText(QuestionText);
-		QuestionInput.Get()->ClearContent();
+		QuestionInput.Get()->SetText(FText::GetEmpty());
+
+
 		UDialogEditorSubsystem::GeInstance()->AddQuestionLine(QuestionText);
+
+		TSharedPtr <UUDialogEditorCustomSettings> CustomSettings = UDialogEditorSubsystem::GeInstance()->CustomSettings;
+
+		auto Questions = *UDialogEditorSubsystem::GeInstance()->GetQuestions().Get();
+		
+		Options.Add(MakeShareable(new FString(QuestionText.ToString())));
+		
+		QuestionsComboBox->SetSelectedItem(Options[Options.Num() - 1]);
+		QuestionsComboBox->RefreshOptions();
+
 	}
 
 	return FReply::Handled();
+}
+
+void SDialogEditWindow::OnAnswerSelectionChanged(const TSharedPtr<FString> NewValue, ESelectInfo::Type)
+{
+	CurrentItem = NewValue;
+}
+
+TSharedRef<SWidget> SDialogEditWindow::MakeWidgetForOption(TSharedPtr<FString> InOption)
+{
+	return SNew(STextBlock).Text(FText::FromString(*InOption));
+}
+
+FText SDialogEditWindow::GetCurrentItemLabel() const
+{
+	if (CurrentItem.IsValid()) {
+		return FText::FromString(*CurrentItem);
+	}
+
+	return LOCTEXT("InvalidComboEntryText", "<<Invalid option>>");
 }
 
 

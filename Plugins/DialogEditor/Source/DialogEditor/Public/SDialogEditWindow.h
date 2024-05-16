@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 
+class UUDialogEditorCustomSettings;
 /**
  * 
  */
@@ -21,9 +22,23 @@ public:
 
 	FReply OnAddQuestionButtonClicked() const;
 
+	void OnAnswerSelectionChanged(const TSharedPtr<FString> NewValue, ESelectInfo::Type);
+	TSharedRef<SWidget> MakeWidgetForOption(TSharedPtr<FString> InOption);
 
+	FText GetCurrentItemLabel() const;
 
 private:
 	TSharedPtr<SEditableTextBox> QuestionInput;
 	TSharedPtr<SEditableTextBox> QuestionEdit;
+
+	TSharedPtr<SComboBox<TSharedPtr<FString>>> QuestionsComboBox;
+
+	TSharedPtr<FString> CurrentItem;
+
+	mutable TArray<TSharedPtr<FString>> Options;
+
+	FString FDefaultComboBoxText = "None";
+
+
+
 };

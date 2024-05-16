@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Modules/ModuleManager.h"
 
+class UUDialogEditorCustomSettings;
 class FToolBarBuilder;
 class FMenuBuilder;
 
@@ -19,7 +20,8 @@ public:
 	/** This function will be bound to Command. */
 	void PluginButtonClicked();
 
-	
+	FReply OnSaveButtonClicked() const;
+
 private:
 
 	void RegisterMenus();
@@ -30,6 +32,6 @@ private:
 
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
-
+	TSharedPtr<class IDetailsView> PropertyWidget;
 
 };

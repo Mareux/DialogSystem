@@ -8,6 +8,8 @@
  * 
  */
 
+class UUDialogEditorCustomSettings;
+
 struct FAnswerData {
 
 		UPROPERTY(EditDefaultsOnly, BlueprintReadOnly)
@@ -34,7 +36,7 @@ public:
 	UDialogEditorSubsystem(UDialogEditorSubsystem const&) = delete;
 	void operator=(UDialogEditorSubsystem const&) = delete;
 private:
-	UDialogEditorSubsystem() { };
+	UDialogEditorSubsystem() { Questions = MakeShareable(new TMap<int, FText>()); };
 
 public:
 
@@ -52,8 +54,11 @@ public:
 
 	TArray<FAnswerData>& GetAnswerArrayForIndex(const int QuestionIndex);
 
+	TSharedPtr <UUDialogEditorCustomSettings> CustomSettings;
+
 private:
 	TSharedPtr<TMap<int, FText>>  Questions;
 
 	TMap<int, TArray<FAnswerData>> Answers;
+
 };
