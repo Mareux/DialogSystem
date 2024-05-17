@@ -3,7 +3,7 @@
 
 #include "SDialogEditWindow.h"
 
-#include "DialogEditorSubsystem.h"
+#include "SAnswerLineEditWidget.h"
 #include "UObject/FastReferenceCollector.h"
 
 #define LOCTEXT_NAMESPACE "FDialogEditorModule"
@@ -20,18 +20,8 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 	const FText InputHint = LOCTEXT("InputHint", "Input question here:");
 
 
-	auto Questions = *UDialogEditorSubsystem::GeInstance()->GetQuestions().Get();
-	for (auto Question : Questions)
-	{
-		Options.Add(MakeShareable(new FString(Question.Value.ToString())));
-	}
-
-	if (Options.Num())
-	{
-		CurrentItem = Options[0];
-	}
-
-
+	DialogCustomSetting = InArgs._DialogCustomSetting;
+	Options = MakeShareable(new TArray < TSharedPtr<FString>>());
 
 	// first panel
 	ChildSlot[
@@ -42,7 +32,7 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 				SNew(SGridPanel)
 				+ SGridPanel::Slot(2, 1)
 				[
-					SNew(SScrollBox)
+					SAssignNew(AnswersScrollBox, SScrollBox)
 				]
 				+ SGridPanel::Slot(1, 1)
 				[
@@ -55,6 +45,7 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 					+ SGridPanel::Slot(2, 1)
 					[
 						SNew(SButton)
+						.OnClicked(this, &SDialogEditWindow::OnAddAnswerButtonClicked)
 						[
 							SNew(STextBlock).
 							Text(AddAnswerButtonText)
@@ -98,7 +89,7 @@ void SDialogEditWindow::Construct(const FArguments& InArgs) {
 			//combo box
 			[
 				SAssignNew(QuestionsComboBox, SComboBox<TSharedPtr<FString>>)
-				.OptionsSource(&Options)
+				.OptionsSource(&*Options)
 				.OnSelectionChanged(this, &SDialogEditWindow::OnAnswerSelectionChanged)
 				.OnGenerateWidget(this, &SDialogEditWindow::MakeWidgetForOption)
 				.InitiallySelectedItem(CurrentItem)
@@ -149,26 +140,30 @@ FReply SDialogEditWindow::OnAddQuestionButtonClicked() const {
 	const FText QuestionText = QuestionInput.Get()->GetText();
 	if (QuestionText.IsEmpty()) {
 		QuestionInput.Get()->SetColorAndOpacity(FColor::Red);
+
 	} else {
+
 		QuestionInput.Get()->SetColorAndOpacity(FColor::White);
-		QuestionEdit.Get()->SetText(QuestionText);
 		QuestionInput.Get()->SetText(FText::GetEmpty());
 
-
-		UDialogEditorSubsystem::GeInstance()->AddQuestionLine(QuestionText);
-
-		TSharedPtr <UUDialogEditorCustomSettings> CustomSettings = UDialogEditorSubsystem::GeInstance()->CustomSettings;
-
-		auto Questions = *UDialogEditorSubsystem::GeInstance()->GetQuestions().Get();
+		Options->Add(MakeShareable(new FString(QuestionText.ToString())));
 		
-		Options.Add(MakeShareable(new FString(QuestionText.ToString())));
-		
-		QuestionsComboBox->SetSelectedItem(Options[Options.Num() - 1]);
+		QuestionsComboBox->SetSelectedItem((*Options)[Options->Num() - 1]);
 		QuestionsComboBox->RefreshOptions();
 
 	}
 
 	return FReply::Handled();
+}
+
+FReply SDialogEditWindow::OnAddAnswerButtonClicked() const
+{
+	AnswersScrollBox.Get()->AddSlot()[
+		SNew(SAnswerLineEditWidget).Options(Options).AnswerID(0).QuestionID(0)
+	];
+
+	return FReply::Handled();
+
 }
 
 void SDialogEditWindow::OnAnswerSelectionChanged(const TSharedPtr<FString> NewValue, ESelectInfo::Type)

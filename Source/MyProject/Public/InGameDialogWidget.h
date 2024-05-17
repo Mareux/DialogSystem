@@ -17,15 +17,4 @@ class MYPROJECT_API UInGameDialogWidget : public UUserWidget
 {
 	GENERATED_BODY()
 
-
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "Dialog")
-		UDialogData* DialogToPlay;
-private:
-	UPROPERTY(meta = (BindWidget))
-		UTextBlock* DialogTextBox;
-
-	UPROPERTY(meta = (BindWidget))
-		UVerticalBox* AnswersVerticlaBox;
-
 };

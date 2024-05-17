@@ -33,5 +33,6 @@ private:
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
 	TSharedPtr<class IDetailsView> PropertyWidget;
+	TSharedPtr<UUDialogEditorCustomSettings> CustomSettings;
 
 };

@@ -3,7 +3,6 @@
 #include "DialogEditor.h"
 #include "DialogEditorStyle.h"
 #include "DialogEditorCommands.h"
-#include "DialogEditorSubsystem.h"
 #include "SDialogEditWindow.h"
 #include "Misc/MessageDialog.h"
 #include "ToolMenus.h"
@@ -67,10 +66,14 @@ TSharedRef<SDockTab> FDialogEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& 
 	//Create the widget and store it in the PropertyWidget pointer
 	PropertyWidget = PropertyModule.CreateDetailView(Args);
 
-	UUDialogEditorCustomSettings* CustomSettings;
-	PropertyWidget->SetObject(CustomSettings = GetMutableDefault<UUDialogEditorCustomSettings>());
 
-	UDialogEditorSubsystem::GeInstance()->CustomSettings = MakeShareable(CustomSettings);
+	if (!CustomSettings)
+	{
+		CustomSettings = MakeShareable(GetMutableDefault<UUDialogEditorCustomSettings>());
+	}
+	PropertyWidget->SetObject(CustomSettings.Get());
+
+	//UDialogEditorSubsystem::GeInstance()->CustomSettings = 
 
 
 
@@ -79,7 +82,7 @@ TSharedRef<SDockTab> FDialogEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& 
 		[
 			SNew(SGridPanel)
 			+ SGridPanel::Slot(1, 1)[
-				SNew(SDialogEditWindow)
+				SNew(SDialogEditWindow).DialogCustomSetting(CustomSettings)
 			]
 			+ SGridPanel::Slot(2, 1)[
 				SNew(SGridPanel)

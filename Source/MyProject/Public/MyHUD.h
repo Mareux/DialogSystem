@@ -6,6 +6,7 @@
 #include "GameFramework/HUD.h"
 #include "MyHUD.generated.h"
 
+class UDialogEditorDataAsset;
 class UDialogData;
 class SDialogSlateWidget;
 /**
@@ -23,7 +24,7 @@ protected:
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditDefaultsOnly, Category = "Dialog")
-		UDialogData* DialogData;
+		UDialogEditorDataAsset* DialogData;
 
 private:
 	//static UTexture2D* GetBackgroundByName(const FString& AssetName);
