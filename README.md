@@ -1,4 +1,4 @@
-# No graphs included (and inputs too)
+# Dialog Editor
 
 To open plugin:
 ![image](https://github.com/Mareux/DialogSystem/assets/28671168/32b35bf4-2fdc-4e73-8f64-6db7e2596ec3)
