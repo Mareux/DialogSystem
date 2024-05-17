@@ -3,34 +3,50 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SlateBasics.h"
-#include "SlateExtras.h"
 
+struct FDialogEditorQuestionData;
 /**
  * 
  */
+
 class DIALOGEDITOR_API SQuestionLineSelectComboBox : public SCompoundWidget
 {
+typedef TSharedPtr<FDialogEditorQuestionData> FComboItemType;
+DECLARE_DELEGATE_OneParam(
+	FOnQuestionLineSelectSelectionChanged,
+	/** param: The newly selected value */
+	FComboItemType
+)
 public:
 	using FQuestionMapType = TMap<int32, FText>;
-	typedef TSharedPtr<FString> FComboItemType;
 
 	SLATE_BEGIN_ARGS(SQuestionLineSelectComboBox){}
-	SLATE_ARGUMENT(FQuestionMapType, QuestionMap)
+	SLATE_ARGUMENT(TWeakPtr<TArray<FComboItemType>>, Options)
+	SLATE_EVENT(FOnQuestionLineSelectSelectionChanged, OnSelectionChanged)
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
-	void OnSelectionChanged(const FComboItemType& NewValue, ESelectInfo::Type);
-	TSharedRef<SWidget> MakeWidgetForOption(FComboItemType InOption, ESelectInfo::Type);
+	void OnComboBoxSelectionChanged(const FComboItemType NewValue, ESelectInfo::Type);
+	TSharedRef<SWidget> MakeWidgetForOption(FComboItemType InOption);
 
 	FText GetCurrentItemLabel() const;
+
+	void RefreshOptions();
+	FComboItemType GetCurrentItem();
+	void SetSelectedItem(FComboItemType NewItem);
+
+	void SetDelegateForSelectionChange(const FOnQuestionLineSelectSelectionChanged& Callback);
 
 private:
 	FQuestionMapType QuestionMap;
 
 	FComboItemType CurrentItem;
 
-	TArray<FComboItemType> Options;
+	TWeakPtr<TArray<FComboItemType>> Options;
+
+	TSharedPtr<SComboBox<FComboItemType>> ComboBox;
+
+	FOnQuestionLineSelectSelectionChanged FSelectionChanged;
 
 };

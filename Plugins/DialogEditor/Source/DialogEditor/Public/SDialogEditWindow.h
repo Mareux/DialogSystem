@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "UDialogEditorCustomSettings.h"
 
+class SQuestionLineSelectComboBox;
 class UUDialogEditorCustomSettings;
 /**
  * 
@@ -14,7 +15,9 @@ class DIALOGEDITOR_API SDialogEditWindow : public SCompoundWidget
 public:
 
 	SLATE_BEGIN_ARGS(SDialogEditWindow) { }
-	SLATE_ARGUMENT(TWeakPtr<UUDialogEditorCustomSettings>, DialogCustomSetting)
+	SLATE_ARGUMENT(UUDialogEditorCustomSettings*, DialogCustomSetting)
+	SLATE_ARGUMENT(TWeakPtr<IDetailsView>, SettingsWidget)
+
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
@@ -24,25 +27,26 @@ public:
 	FReply OnAddQuestionButtonClicked() const;
 
 	FReply OnAddAnswerButtonClicked() const;
+	FReply OnSaveButtonClicked() const;
+	FReply OnLoadButtonClicked() const;
 
-	void OnAnswerSelectionChanged(const TSharedPtr<FString> NewValue, ESelectInfo::Type);
-	TSharedRef<SWidget> MakeWidgetForOption(TSharedPtr<FString> InOption);
-
-	FText GetCurrentItemLabel() const;
+	void OnComboBoxSelectionChanged(TSharedPtr<FDialogEditorQuestionData> NewItem);
 
 private:
-	TWeakPtr<UUDialogEditorCustomSettings> DialogCustomSetting;
+	UUDialogEditorCustomSettings* DialogCustomSetting = nullptr;
+	TWeakPtr<IDetailsView> SettingsWidget;
 
 	TSharedPtr<SEditableTextBox> QuestionInput;
 	TSharedPtr<SEditableTextBox> QuestionEdit;
 
-	TSharedPtr<SComboBox<TSharedPtr<FString>>> QuestionsComboBox;
+	//TSharedPtr<SComboBox<TSharedPtr<FString>>> QuestionsComboBox;
+	TSharedPtr<SQuestionLineSelectComboBox> ComboBox;
 
 	TSharedPtr<SScrollBox> AnswersScrollBox;
 
 	TSharedPtr<FString> CurrentItem;
-
-	mutable TSharedPtr <TArray<TSharedPtr<FString>>> Options;
+	TSharedPtr<TArray<TSharedPtr<FDialogEditorQuestionData>>> QuestionOptions;
+	mutable TMap<int, TSharedPtr<TArray<FDialogEditorAnswerData>>> Answers;
 
 	FString FDefaultComboBoxText = "None";
 

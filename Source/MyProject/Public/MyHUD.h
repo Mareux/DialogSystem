@@ -17,6 +17,9 @@ class MYPROJECT_API AMyHUD : public AHUD
 {
 	GENERATED_BODY()
 
+public:
+	void SetBackground(UTexture2D* NewBackbround) {}
+
 protected:
 	TSharedPtr<SDialogSlateWidget> DialogWidget;
 	TSharedPtr<SWidget> DialogWidgetContainer;
@@ -26,7 +29,7 @@ protected:
 	UPROPERTY(EditDefaultsOnly, Category = "Dialog")
 		UDialogEditorDataAsset* DialogData;
 
-private:
-	//static UTexture2D* GetBackgroundByName(const FString& AssetName);
+	UPROPERTY(EditDefaultsOnly, Category = "Dialog")
+		UTexture2D* Background;
 	
 };

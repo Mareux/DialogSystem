@@ -25,7 +25,7 @@ public class DialogEditor : ModuleRules
 		PublicDependencyModuleNames.AddRange(
 			new string[]
 			{
-                "Core", "CoreUObject", "Engine", "InputCore" ,"UMG" , "SlateCore"
+                "Core", "CoreUObject", "Engine", "InputCore", "SlateCore","AssetTools"
 				// ... add other public dependencies that you statically link with here ...
 			}
 			);
@@ -40,8 +40,7 @@ public class DialogEditor : ModuleRules
 				"ToolMenus",
 				"Slate",
 				"SlateCore",
-                "Blutility",
-                 "UMGEditor"
+				 "AssetTools"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

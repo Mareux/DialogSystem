@@ -2,38 +2,42 @@
 
 #pragma once
 
+#include "DialogEditorDataAsset.h"
 #include "CoreMinimal.h"
 
 /**
  * 
  */
+
+class SQuestionLineSelectComboBox;
+
 class DIALOGEDITOR_API SAnswerLineEditWidget : public SCompoundWidget
 {
 public:
 	SLATE_BEGIN_ARGS(SAnswerLineEditWidget) { }
 	SLATE_ARGUMENT(int32, QuestionID)
 	SLATE_ARGUMENT(int8, AnswerID)
-	SLATE_ARGUMENT(TWeakPtr<TArray<TSharedPtr<FString>>>, Options)
+	SLATE_ARGUMENT(TWeakPtr<TArray<TSharedPtr<FDialogEditorQuestionData>>>, Options)
+	SLATE_ARGUMENT(TWeakPtr<TArray<FDialogEditorAnswerData>>, AnswerArray)
+
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
-	void OnAnswerSelectionChanged(const TSharedPtr<FString> NewValue, ESelectInfo::Type);
-	TSharedRef<SWidget> MakeWidgetForOption(TSharedPtr<FString> InOption);
-
-	FText GetCurrentItemLabel() const;
+	FReply OnButtonClicked() const;
 
 	virtual bool SupportsKeyboardFocus() const override { return true; }
 
 private:
 
 	TSharedPtr<SEditableTextBox> AnswerInput;
-	TWeakPtr<TArray<TSharedPtr<FString>>> Options;
+	TWeakPtr<TArray<TSharedPtr<FDialogEditorQuestionData>>> Options;
+	TWeakPtr<TArray<FDialogEditorAnswerData>> AnswerArray;
 
 	TSharedPtr<FString> CurrentItem;
 
-	TSharedPtr<SComboBox<TSharedPtr<FString>>> QuestionsComboBox;
+	TSharedPtr<SQuestionLineSelectComboBox> QuestionsComboBox;
 
-	int32 QuestionID;
-	int8 AnswerID;
+	int32 QuestionID = 0;
+	int8 AnswerID = 0;
 };

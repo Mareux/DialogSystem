@@ -3,10 +3,11 @@
 
 #include "UDialogEditorCustomSettings.h"
 
+#include "AssetViewUtils.h"
 #include "UObject/SavePackage.h"
 
 void UUDialogEditorCustomSettings::Save()
 {
 	DialogEditorDataAsset->MarkPackageDirty();
-	
+	AssetViewUtils::SaveDirtyPackages();
 }

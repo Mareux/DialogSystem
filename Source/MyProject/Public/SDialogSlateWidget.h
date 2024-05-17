@@ -3,9 +3,8 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "DialogEditorDataAsset.h"
 #include "MyHUD.h"
-#include "SlateBasics.h"
-#include "SlateExtras.h"
 
 /**
  * 
@@ -18,16 +17,27 @@ public:
 	SLATE_BEGIN_ARGS(SDialogSlateWidget) {}
 
 	SLATE_ARGUMENT(TWeakObjectPtr<AMyHUD>, OwningHUD)
-	SLATE_ARGUMENT(FText, DialogText)
+	SLATE_ARGUMENT(TWeakObjectPtr<UDialogEditorDataAsset>, DialogText)
+	SLATE_ARGUMENT(TWeakObjectPtr<UTexture2D>, Background)
 
 	SLATE_END_ARGS()
 
 	void Construct(const FArguments& InArgs);
 
+	void OnButtonClicked(int id) ;
+
 	virtual bool SupportsKeyboardFocus() const override { return true; }
 private:
 	TWeakObjectPtr<AMyHUD> OwningHUD;
-	FText DialogText;
+	TWeakObjectPtr<UDialogEditorDataAsset> DialogText;
+	TWeakObjectPtr<UTexture2D> Background;
 
+	TSharedPtr<STextBlock> DialogTextBlock;
+	TSharedPtr<SVerticalBox> AnswersVerticalBox;
+
+	TArray<FDialogEditorQuestionData> QuestionData;
+	TArray<FDialogEditorAnswerData> AnswerData;
+	int QuestionId = 0;
+	int FocusedButtonId = -1;
 };
 

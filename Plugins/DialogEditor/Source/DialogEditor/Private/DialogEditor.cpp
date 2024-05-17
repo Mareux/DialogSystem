@@ -56,7 +56,6 @@ void FDialogEditorModule::ShutdownModule()
 
 TSharedRef<SDockTab> FDialogEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& SpawnTabArgs) {
 
-	const FText SaveButtonText = LOCTEXT("FSaveButtonText", "Save");
 	FPropertyEditorModule& PropertyModule = FModuleManager::LoadModuleChecked<FPropertyEditorModule>("PropertyEditor");
 
 	//FDetailsViewArgs is a struct of settings to customize our Details View Widget
@@ -65,38 +64,17 @@ TSharedRef<SDockTab> FDialogEditorModule::OnSpawnPluginTab(const FSpawnTabArgs& 
 
 	//Create the widget and store it in the PropertyWidget pointer
 	PropertyWidget = PropertyModule.CreateDetailView(Args);
-
-
-	if (!CustomSettings)
-	{
-		CustomSettings = MakeShareable(GetMutableDefault<UUDialogEditorCustomSettings>());
-	}
-	PropertyWidget->SetObject(CustomSettings.Get());
-
-	//UDialogEditorSubsystem::GeInstance()->CustomSettings = 
-
-
+	
+	PropertyWidget->SetObject(CustomSettings = GetMutableDefault<UUDialogEditorCustomSettings>());
 
 	return SNew(SDockTab)
 		.TabRole(ETabRole::NomadTab)
 		[
 			SNew(SGridPanel)
 			+ SGridPanel::Slot(1, 1)[
-				SNew(SDialogEditWindow).DialogCustomSetting(CustomSettings)
-			]
-			+ SGridPanel::Slot(2, 1)[
-				SNew(SGridPanel)
-				+ SGridPanel::Slot(1, 1)[
-					PropertyWidget.ToSharedRef()
-				]
-				+ SGridPanel::Slot(1, 2)[
-					SNew(SButton)
-					[
-						SNew(STextBlock)
-						.Text(SaveButtonText)
-					]
-				]
-
+				SNew(SDialogEditWindow)
+				.DialogCustomSetting(CustomSettings)
+				.SettingsWidget(PropertyWidget)
 			]
 		];
 }

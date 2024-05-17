@@ -18,6 +18,8 @@ class DIALOGEDITOR_API UUDialogEditorCustomSettings : public UObject
 public:
 	void Save();
 
+	UDialogEditorDataAsset* GetDialogEditorDataAsset() const { return DialogEditorDataAsset; }
+
 private:
 	UPROPERTY(EditAnywhere, Category = "Dialog Assets")
 	UDialogEditorDataAsset* DialogEditorDataAsset;

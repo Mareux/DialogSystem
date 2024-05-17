@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "UDialogEditorCustomSettings.h"
 #include "Modules/ModuleManager.h"
 
 class UUDialogEditorCustomSettings;
@@ -28,11 +29,9 @@ private:
 
 	TSharedRef<class SDockTab> OnSpawnPluginTab(const class FSpawnTabArgs& SpawnTabArgs);
 
-
-
 private:
 	TSharedPtr<class FUICommandList> PluginCommands;
 	TSharedPtr<class IDetailsView> PropertyWidget;
-	TSharedPtr<UUDialogEditorCustomSettings> CustomSettings;
+	UUDialogEditorCustomSettings* CustomSettings = nullptr;
 
 };

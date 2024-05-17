@@ -2,6 +2,8 @@
 
 
 #include "SQuestionLineSelectComboBox.h"
+
+#include "DialogEditorDataAsset.h"
 #include "Widgets/Input/SComboBox.h"
 
 #define LOCTEXT_NAMESPACE "SQuestionLineSelectComboBox"
@@ -9,22 +11,20 @@
 void SQuestionLineSelectComboBox::Construct(const FArguments& InArgs)
 {
 
-	QuestionMap = InArgs._QuestionMap;
+	Options = InArgs._Options;
+	FSelectionChanged = InArgs._OnSelectionChanged;
 
-	for (auto Question : QuestionMap)
+	if (Options.IsValid() && !Options.Pin().Get()->IsEmpty())
 	{
-		Options.Add(MakeShareable(new FString( Question.Value.ToString())));
+		CurrentItem = *Options.Pin().Get()->begin();
 	}
-
-	CurrentItem = Options[0];
-
 
 	ChildSlot
 		[
-			SNew(SComboBox<FComboItemType>)
-			.OptionsSource(&Options)
-			//.OnSelectionChanged (this, &SQuestionLineSelectComboBox::OnSelectionChanged)
-			//.OnGenerateWidget(this, &SQuestionLineSelectComboBox::MakeWidgetForOption)
+			SAssignNew(ComboBox, SComboBox<FComboItemType>)
+			.OptionsSource(Options.Pin().Get())
+			.OnSelectionChanged(this, &SQuestionLineSelectComboBox::OnComboBoxSelectionChanged)
+			.OnGenerateWidget(this, &SQuestionLineSelectComboBox::MakeWidgetForOption)
 			.InitiallySelectedItem(CurrentItem)
 			[
 				SNew(STextBlock)
@@ -33,24 +33,48 @@ void SQuestionLineSelectComboBox::Construct(const FArguments& InArgs)
 		];
 }
 
-TSharedRef<SWidget> SQuestionLineSelectComboBox::MakeWidgetForOption(FComboItemType InOption, ESelectInfo::Type)
-{
-	return SNew(STextBlock).Text(FText::FromString(*InOption));
-
-}
-
-void SQuestionLineSelectComboBox::OnSelectionChanged(const FComboItemType& NewValue, ESelectInfo::Type)
+void SQuestionLineSelectComboBox::OnComboBoxSelectionChanged(const FComboItemType NewValue, ESelectInfo::Type)
 {
 	CurrentItem = NewValue;
+	if (FSelectionChanged.IsBound())
+	{
+		FSelectionChanged.Execute(NewValue);
+	}
+}
+
+TSharedRef<SWidget> SQuestionLineSelectComboBox::MakeWidgetForOption(FComboItemType InOption)
+{
+	return SNew(STextBlock).Text(FText::FromString(InOption->QuestionText.ToString()));
+
 }
 
 FText SQuestionLineSelectComboBox::GetCurrentItemLabel() const
 {
 	if (CurrentItem.IsValid()) {
-		return FText::FromString(*CurrentItem);
+		return FText::FromString(CurrentItem->QuestionText.ToString());
 	}
 
 	return LOCTEXT("InvalidComboEntryText", "<<Invalid option>>");
+}
+
+void SQuestionLineSelectComboBox::RefreshOptions()
+{
+	ComboBox->RefreshOptions();
+}
+
+SQuestionLineSelectComboBox::FComboItemType SQuestionLineSelectComboBox::GetCurrentItem()
+{
+	return ComboBox->GetSelectedItem();
+}
+
+void SQuestionLineSelectComboBox::SetSelectedItem(FComboItemType NewItem)
+{
+	ComboBox->SetSelectedItem(NewItem);
+}
+
+void SQuestionLineSelectComboBox::SetDelegateForSelectionChange(const FOnQuestionLineSelectSelectionChanged& Callback)
+{
+	FSelectionChanged = Callback;
 }
 
 #undef LOCTEXT_NAMESPACE
